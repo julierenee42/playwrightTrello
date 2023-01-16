@@ -73,9 +73,16 @@ export class Login {
   /**
    * Assert the incorrect email/password message appears when logging in with invalid credentials
    */
-  async assertIncorrectPasswordMessage() {
+  async assertIncorrectPasswordMessageIsVisible() {
     await expect(this.passwordErrorMessage).toContainText(
       "Incorrect email address and / or password. Do you need help logging in?"
     );
+  }
+
+  /**
+   * Assert the incorrect email/password message doesn't appear when logging in with valid credentials
+   */
+  async assertIncorrectPasswordMessageIsNotVisible() {
+    await expect(this.passwordErrorMessage).not.toBeVisible();
   }
 }

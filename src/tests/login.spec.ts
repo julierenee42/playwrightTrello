@@ -13,7 +13,7 @@ test('Enter invalid credentials', async ({ page, loginPage }) => {
   await loginPage.clickLoginButton();
 
   // Assert an error message appears saying the credentials are incorrect
-  await loginPage.assertIncorrectPasswordMessage();
+  await loginPage.assertIncorrectPasswordMessageIsVisible();
 });
 
 test('Enter valid credentials', async ({ page, loginPage, boards }) => {
@@ -28,6 +28,9 @@ test('Enter valid credentials', async ({ page, loginPage, boards }) => {
   await loginPage.fillPasswordWithAutomationPassword();
   await loginPage.clickLoginButton();
 
+  // Assert password error message doesn't appear
+  await loginPage.assertIncorrectPasswordMessageIsNotVisible();
+  
   // Wait for page to redirect and load
   await page.waitForNavigation({ url: /trello.com/ });
   await boards.waitForBoardsPageToLoad();
