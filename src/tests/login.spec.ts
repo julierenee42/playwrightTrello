@@ -30,10 +30,10 @@ test('Enter valid credentials', async ({ page, loginPage, boards }) => {
 
   // Assert password error message doesn't appear
   await loginPage.assertIncorrectPasswordMessageIsNotVisible();
-  
+
   // Wait for page to redirect and load
-  await page.waitForNavigation({ url: /trello.com/ });
   await boards.waitForBoardsPageToLoad();
+  await page.waitForURL('**/boards**');
 
   // Expect to see section titled "YOUR WORKSPACE" with a workspace named "Playwright"
   await boards.assertYourWorkspacesHeaderVisible()

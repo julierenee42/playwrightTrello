@@ -2,12 +2,14 @@ import { test as base } from '@playwright/test';
 import { Login } from "../pages/login";
 import { Boards } from '../pages/boards';
 import { KanbanBoard } from '../pages/kanbanBoard';
+import { CardDetails } from '../pages/cardDetails';
 
 // Declare fixture types
 export type fixtures = {
   loginPage: Login;
   boards: Boards;
   kanbanBoard: KanbanBoard;
+  cardDetails: CardDetails;
 }
 
 // Extend base test method by providing fixtures
@@ -34,9 +36,9 @@ export const test = base.extend<fixtures>({
     await loginPage.clickLoginButton();
 
     // Wait for page to redirect and load
-    await page.waitForNavigation({ url: /trello.com/ });
     let boards = new Boards(page);
     await boards.waitForBoardsPageToLoad();
+    await page.waitForURL('**/boards**');
 
     // Expect to see section titled "YOUR WORKSPACE" with a workspace named "Playwright"
     await boards.assertYourWorkspacesHeaderVisible()
@@ -46,5 +48,9 @@ export const test = base.extend<fixtures>({
     await boards.openBoard();
 
     await use(new KanbanBoard(page));
+  },
+
+  cardDetails: async ({ page }, use) => {
+    await use(new CardDetails(page));
   },
 });

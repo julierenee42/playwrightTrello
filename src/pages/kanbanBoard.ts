@@ -7,12 +7,22 @@ export class KanbanBoard {
   // Lists
   private allLists: Locator;
 
+  // Inputs
+  private titleForNewCardInput: Locator;
+
+  // Buttons
+  private addCardButton: Locator
+
   constructor(page: Page) {
     // Playwright built-in
     this.page = page;
 
     // Lists
     this.allLists = page.locator('.list');
+    this.titleForNewCardInput = page.getByPlaceholder('Enter a title for this card…');
+
+    // Buttons
+    this.addCardButton = page.getByRole('button', { name: 'Add card' });
   }
 
   /**
@@ -48,7 +58,16 @@ export class KanbanBoard {
   }
 
   /**
-   * Assertion methods
+   * Get the locator for the "Get a card" button in the specified list
+   * @param list The locator for the parent list
+   * @returns Returns the locator for the "Add a card" button
+   */
+  getAddACardButton(list: Locator) {
+    return list.locator('.open-card-composer');
+  }
+
+  /**
+   * Class methods
    */
 
   /**
@@ -86,5 +105,56 @@ export class KanbanBoard {
   async assertCardExistsInList(list: Locator, text: string) {
     let card = this.getCardInList(list, text);
     await expect(card).toBeVisible();
+  }
+
+  /**
+   * Assert the list does not have a card with the specified text
+   * @param list Locator for list on board
+   * @param text Expected text on card
+   */
+  async assertCardDoesNotExistInList(list: Locator, text: string) {
+    let card = this.getCardInList(list, text);
+    await expect(card).not.toBeVisible();
+  }
+
+  /**
+   * Click "Add a card" in the specified list
+   * @param list Locator for list on board
+   */
+  async clickAddACardInList(list: Locator) {
+    let addACardButton = this.getAddACardButton(list);
+    await addACardButton.click();
+  }
+
+  /**
+   * Enter a title for the card to be created
+   * @param titleOfCard Name to give to card
+   */
+  async enterTitleForNewCard(titleOfCard: string) {
+    await this.titleForNewCardInput.fill(titleOfCard);
+  }
+
+  /**
+   * Click "Add card" button
+   */
+  async clickAddCardButton() {
+    await this.addCardButton.click();
+  }
+
+  /**
+   * Open the specified card
+   * @param card Locator for the card to open
+   */
+  async openCard(card: Locator) {
+    await card.click();
+  }
+
+  /**
+   * Drag the specified card to the designated list
+   * @param card Card to be dragged
+   * @param destinationList List to drag card to
+   */
+  async dragCardToList(card: Locator, destinationList: Locator) {
+    await card.dragTo(destinationList);
   }
 }
