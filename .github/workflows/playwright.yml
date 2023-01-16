@@ -21,7 +21,7 @@ jobs:
       env:
         EMAIL_ADDRESS: ${{ secrets.EMAILADDRESS }}
         PASSWORD: ${{ secrets.PASSWORD }}
-      run: npx playwright test
+      run: xvfb-run npx playwright test
     - uses: actions/upload-artifact@v3
       if: always()
       with:
