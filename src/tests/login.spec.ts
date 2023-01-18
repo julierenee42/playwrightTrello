@@ -32,7 +32,6 @@ test('Enter valid credentials', async ({ page, loginPage, boards }) => {
   await loginPage.assertIncorrectPasswordMessageIsNotVisible();
 
   // Wait for page to redirect and load
-  await boards.waitForBoardsPageToLoad();
   await page.waitForURL('**/boards**');
 
   // Expect to see section titled "YOUR WORKSPACE" with a workspace named "Playwright"

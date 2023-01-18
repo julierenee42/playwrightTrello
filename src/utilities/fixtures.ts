@@ -37,7 +37,6 @@ export const test = base.extend<fixtures>({
 
     // Wait for page to redirect and load
     let boards = new Boards(page);
-    await boards.waitForBoardsPageToLoad();
     await page.waitForURL('**/boards**');
 
     // Expect to see section titled "YOUR WORKSPACE" with a workspace named "Playwright"
