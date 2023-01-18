@@ -35,7 +35,10 @@ const config: PlaywrightTestConfig = {
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
+    /* Don't run as headless to be able to see the test as it runs */
     headless: false,
+    /* Set window size to 1280x720 */
+    viewport: { width: 1280, height: 720 },
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://localhost:3000',
 
