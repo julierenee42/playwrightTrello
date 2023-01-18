@@ -1,11 +1,14 @@
 import { expect, Locator, Page } from "@playwright/test";
 
 export class CardDetails {
-  // Playwright built-in
+  // Playwright built-ins
   private page: Page;
 
+  // Dialog
+  private cardDetailsDialog: Locator;
+
   // Inputs
-  private emptyDescriptionField: Locator;
+  private emptyDescriptionInput: Locator;
 
   // Buttons
   private saveButton: Locator;
@@ -14,15 +17,15 @@ export class CardDetails {
   private deleteButton: Locator;
   private confirmDeleteButton: Locator;
 
-  // Text elements
-  private descriptionFieldText: Locator;
-
   constructor(page: Page) {
-    // Playwright built-in
+    // Playwright built-ins
     this.page = page;
 
+    // Dialog
+    this.cardDetailsDialog = page.locator('.card-detail-window');
+
     // Inputs
-    this.emptyDescriptionField = page.getByPlaceholder('Add a more detailed description…');
+    this.emptyDescriptionInput = page.getByPlaceholder('Add a more detailed description');
 
     // Buttons
     this.saveButton = page.getByRole('button', { name: 'Save' }).first();
@@ -30,17 +33,32 @@ export class CardDetails {
     this.archiveButton = page.getByRole('link', { name: 'Archive' });
     this.deleteButton = page.getByRole('link', { name: 'Delete' });
     this.confirmDeleteButton = page.getByRole('button', { name: 'Delete' });
-
-    // Text elements
-    this.descriptionFieldText = page.locator('div.description-content').getByText('Text in the description field.');
   }
+
+  /**
+   * Parameterized locators
+   */
+
+  /**
+   * Get the locator for the description field with the expected text
+   * @param descriptionText The expected description text
+   * @returns
+   */
+  private getDescriptionWithText(descriptionText: string) {
+    return this.page.locator('div.description-content').getByText(descriptionText).last();
+  }
+
+  /**
+   * Class methods
+   */
 
   /**
    * Enter text in the description field
    * @param descriptionText Text to enter in description field
    */
   async fillDescriptionField(descriptionText: string) {
-    await this.emptyDescriptionField.fill(descriptionText);
+    await this.emptyDescriptionInput.click();
+    await this.emptyDescriptionInput.fill(descriptionText);
   }
 
   /**
@@ -55,7 +73,8 @@ export class CardDetails {
    * @param descriptionText Expected text in description field
    */
   async assertDescriptionFieldText(descriptionText: string) {
-    await expect(this.descriptionFieldText).toHaveText(descriptionText);
+    let descriptionField = this.getDescriptionWithText(descriptionText);
+    await expect(descriptionField).toBeVisible();
   }
 
   /**
@@ -63,6 +82,15 @@ export class CardDetails {
    */
   async closeDetails() {
     await this.closeDetailsButton.click();
+    await this.cardDetailsDialog.waitFor({ state: "hidden" });
+  }
+
+  /**
+   * Check if the card details dialog is open
+   * @returns boolean
+   */
+  async isCardDetailsDialogOpen() {
+    return await this.cardDetailsDialog.isVisible();
   }
 
   /**

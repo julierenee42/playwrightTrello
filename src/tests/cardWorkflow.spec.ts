@@ -1,48 +1,61 @@
-import { Locator } from "@playwright/test";
 import { test } from "../utilities/fixtures";
+import { generateRandomNumber } from "../utilities/utilities";
 
-let destinationList: Locator;
-let titleOfCard = "Card to test in Playwright";
+let cardText: string;
+let startingListName: string = "To Do";
+let destinationListName: string = "Done";
 
-test('Card workflow', async ({ kanbanBoard, cardDetails }) => {
+test.beforeEach(async ({ kanbanBoard, browserName }) => {
   // Add a card to the list "To Do"
-  let startingList: Locator;
-  startingList = kanbanBoard.getListWithName("To Do");
-  await kanbanBoard.clickAddACardInList(startingList);
-  await kanbanBoard.enterTitleForNewCard(titleOfCard);
+  await kanbanBoard.clickAddACardInList(startingListName);
+
+  let randomNumber = generateRandomNumber();
+  cardText = `Card to test in Playwright ${browserName} ${randomNumber}`;
+  await kanbanBoard.enterTitleForNewCard(cardText);
   await kanbanBoard.clickAddCardButton();
 
   // Assert card was created
-  await kanbanBoard.assertCardExistsInList(startingList, titleOfCard);
+  await kanbanBoard.assertCardExistsInList(startingListName, cardText);
+});
 
-  // Open card
-  let card = kanbanBoard.getCardInList(startingList, titleOfCard);
-  await kanbanBoard.openCard(card);
+test('Add details to card', async ({ kanbanBoard, cardDetails }) => {
+  console.log(`title of card ${cardText}`);
+  // Add details to card
+  await kanbanBoard.openCard(cardText);
 
-  // Add card details
   let textInDescriptionField = "Text in the description field. Added by Playwright.";
   await cardDetails.fillDescriptionField(textInDescriptionField);
   await cardDetails.clickSaveButton();
 
-  // Assert the card details were added
+  // Assert the description was added
   await cardDetails.assertDescriptionFieldText(textInDescriptionField);
 
-  // Close card details
+  // Close and reopen card to assert the description stays
   await cardDetails.closeDetails();
+  await kanbanBoard.openCard(cardText);
 
-  // Drag card to the "Done" column
-  destinationList = kanbanBoard.getListWithName("Done");
-  await kanbanBoard.dragCardToList(card, destinationList);
-
-  // Assert card is in the "Done" column
-  await kanbanBoard.assertCardExistsInList(destinationList, titleOfCard);
+  await cardDetails.assertDescriptionFieldText(textInDescriptionField);
 });
 
-// Delete the card that was created in the test
-test.afterEach(async ({ kanbanBoard, cardDetails } ) => {
-  // Open card
-  let card = kanbanBoard.getCardInList(destinationList, titleOfCard);
-  await kanbanBoard.openCard(card);
+test(`Drag a card`, async ({ kanbanBoard }) => {
+  console.log(`title of card ${cardText}`);
+  // Assert card is not in the "Done" column
+  await kanbanBoard.assertCardDoesNotExistInList(destinationListName, cardText);
+
+  // Drag card to the "Done" column
+  await kanbanBoard.dragCardToList(cardText, destinationListName);
+
+  // Assert card is in the "Done" column
+  await kanbanBoard.assertCardDoesNotExistInList(startingListName, cardText);
+  await kanbanBoard.assertCardExistsInList(destinationListName, cardText);
+});
+
+// Test cleanup
+test.afterEach(async ({ page, cardDetails, kanbanBoard }) => {
+  // Open card if it's not already open
+  if (!(await cardDetails.isCardDetailsDialogOpen())) {
+    await kanbanBoard.openCard(cardText)
+  }
 
   // Archive card
   await cardDetails.archiveCard();
@@ -51,5 +64,5 @@ test.afterEach(async ({ kanbanBoard, cardDetails } ) => {
   await cardDetails.deleteCard();
 
   // Assert the card doesn't exist
-  await kanbanBoard.assertCardDoesNotExistInList(destinationList, titleOfCard);
+  await kanbanBoard.assertCardDoesNotExistOnBoard(cardText)
 });
