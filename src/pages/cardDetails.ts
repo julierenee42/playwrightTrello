@@ -8,7 +8,10 @@ export class CardDetails {
   private cardDetailsDialog: Locator;
 
   // Inputs
-  private emptyDescriptionInput: Locator;
+  private descriptionInput: Locator;
+
+  // Text fields
+  private descriptionText: Locator;
 
   // Buttons
   private saveButton: Locator;
@@ -25,7 +28,10 @@ export class CardDetails {
     this.cardDetailsDialog = page.locator('.card-detail-window');
 
     // Inputs
-    this.emptyDescriptionInput = page.getByPlaceholder('Add a more detailed description');
+    this.descriptionInput = page.getByRole("textbox", { name: 'Main content area, start typing to enter text.' });
+
+    // Text fields
+    this.descriptionText = page.locator('div.description-content').getByRole('paragraph');
 
     // Buttons
     this.saveButton = page.getByRole('button', { name: 'Save' }).first();
@@ -45,7 +51,7 @@ export class CardDetails {
    * @returns
    */
   private getDescriptionWithText(descriptionText: string) {
-    return this.page.locator('div.description-content').getByText(descriptionText).last();
+    return this.descriptionText.filter({ hasText: 'Text in the description field. Added by Playwright.' });
   }
 
   /**
@@ -57,8 +63,8 @@ export class CardDetails {
    * @param descriptionText Text to enter in description field
    */
   async fillDescriptionField(descriptionText: string) {
-    await this.emptyDescriptionInput.click();
-    await this.emptyDescriptionInput.fill(descriptionText);
+    await this.descriptionInput.click();
+    await this.descriptionInput.fill(descriptionText);
   }
 
   /**
