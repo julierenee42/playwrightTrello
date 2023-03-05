@@ -16,13 +16,14 @@ test.beforeEach(async ({ kanbanBoard, browserName }) => {
 
   // Assert card was created
   await kanbanBoard.assertCardExistsInList(startingListName, cardText);
+  console.log(`title of card ${cardText}`);
 });
 
-test('Add details to card', async ({ kanbanBoard, cardDetails }) => {
-  console.log(`title of card ${cardText}`);
-  // Add details to card
+test('Add details to card', async ({ kanbanBoard, cardDetails, browserName }) => {
+  // Open card
   await kanbanBoard.openCard(cardText);
 
+  // Add a description to the card
   let textInDescriptionField = "Text in the description field. Added by Playwright.";
   await cardDetails.fillDescriptionField(textInDescriptionField);
   await cardDetails.clickSaveButton();
@@ -38,7 +39,6 @@ test('Add details to card', async ({ kanbanBoard, cardDetails }) => {
 });
 
 test(`Drag a card`, async ({ kanbanBoard }) => {
-  console.log(`title of card ${cardText}`);
   // Assert card is not in the "Done" column
   await kanbanBoard.assertCardDoesNotExistInList(destinationListName, cardText);
 

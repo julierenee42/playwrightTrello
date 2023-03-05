@@ -51,7 +51,7 @@ export class CardDetails {
    * @returns
    */
   private getDescriptionWithText(descriptionText: string) {
-    return this.descriptionText.filter({ hasText: 'Text in the description field. Added by Playwright.' });
+    return this.descriptionText.filter({ hasText: descriptionText });
   }
 
   /**
@@ -64,7 +64,7 @@ export class CardDetails {
    */
   async fillDescriptionField(descriptionText: string) {
     await this.descriptionInput.click();
-    await this.descriptionInput.fill(descriptionText);
+    await this.descriptionInput.type(descriptionText);
   }
 
   /**
