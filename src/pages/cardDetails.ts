@@ -12,10 +12,15 @@ export class CardDetails {
 
   // Text fields
   private descriptionText: Locator;
+  private labelsPopoverDialog: Locator;
 
   // Buttons
   private saveButton: Locator;
   private closeDetailsButton: Locator;
+  private labelButton: Locator;
+  private labels: Locator;
+  private labelsOnCard: Locator;
+  private closeLabelsPopoverButton: Locator;
   private archiveButton: Locator;
   private deleteButton: Locator;
   private confirmDeleteButton: Locator;
@@ -26,18 +31,23 @@ export class CardDetails {
 
     // Dialog
     this.cardDetailsDialog = page.locator('.card-detail-window');
+    this.labelsPopoverDialog = page.getByTestId('labels-popover-labels-screen');
 
     // Inputs
-    this.descriptionInput = page.getByRole("textbox", { name: 'Main content area, start typing to enter text.' });
+    this.descriptionInput = this.cardDetailsDialog.getByRole("textbox", { name: 'Main content area, start typing to enter text.' });
 
     // Text fields
-    this.descriptionText = page.locator('div.description-content').getByRole('paragraph');
+    this.descriptionText = this.cardDetailsDialog.locator('div.description-content').getByRole('paragraph');
 
     // Buttons
-    this.saveButton = page.getByRole('button', { name: 'Save' }).first();
+    this.saveButton = this.cardDetailsDialog.getByRole('button', { name: 'Save' }).first();
     this.closeDetailsButton = page.getByRole('button', { name: 'Close dialog' });
-    this.archiveButton = page.getByRole('link', { name: 'Archive' });
-    this.deleteButton = page.getByRole('link', { name: 'Delete' });
+    this.labelButton = this.cardDetailsDialog.getByRole('link', { name: 'Labels' });
+    this.labels = this.labelsPopoverDialog.locator('label');
+    this.labelsOnCard = this.cardDetailsDialog.getByTestId('card-back-labels-container').getByTestId('card-label');
+    this.closeLabelsPopoverButton = this.labelsPopoverDialog.getByTestId('popover-close');
+    this.archiveButton = this.cardDetailsDialog.getByRole('link', { name: 'Archive' });
+    this.deleteButton = this.cardDetailsDialog.getByRole('link', { name: 'Delete' });
     this.confirmDeleteButton = page.getByRole('button', { name: 'Delete' });
   }
 
@@ -48,10 +58,19 @@ export class CardDetails {
   /**
    * Get the locator for the description field with the expected text
    * @param descriptionText The expected description text
-   * @returns
+   * @returns locator
    */
   private getDescriptionWithText(descriptionText: string) {
     return this.descriptionText.filter({ hasText: descriptionText });
+  }
+
+  /**
+   * Get the locator for the checkbox next to the specified label
+   * @param label Locator for label
+   * @returns locator
+   */
+  private getLabelCheckbox(label: Locator) {
+    return label.locator('input[type="checkbox"]');
   }
 
   /**
@@ -112,5 +131,35 @@ export class CardDetails {
   async deleteCard() {
     await this.deleteButton.click();
     await this.confirmDeleteButton.click();
+  }
+
+  /**
+   * Add a label to the card
+   * @param labelText Text describing label
+   */
+  async addLabelToCard(labelText: string) {
+    // Open the Labels popover
+    await this.labelButton.click();
+
+    // Select the specified label and assert the checkbox is checked
+    let label = this.labels.filter({ has: this.page.getByText(labelText) });
+    await label.click();
+
+    let labelCheckboxAttribute = this.getLabelCheckbox(label).getAttribute("aria-checked");
+    expect(labelCheckboxAttribute).toBeTruthy();
+
+    // Close the Labels popover
+    await this.closeLabelsPopoverButton.click();
+  }
+
+  /**
+   * Assert there is a label on the card with the expected text and background color
+   * @param expectedLabelText Text on label
+   * @param expectedColor Color of label
+   */
+  async assertLabelIsVisibleWithColor(expectedLabelText: string, expectedColor: string) {
+    let label = this.labelsOnCard.filter({ hasText: expectedLabelText });
+    await expect(label).toBeVisible();
+    await expect(label).toHaveCSS("background-color", expectedColor);
   }
 }

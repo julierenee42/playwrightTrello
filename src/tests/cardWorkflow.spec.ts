@@ -19,7 +19,7 @@ test.beforeEach(async ({ kanbanBoard, browserName }) => {
   console.log(`title of card ${cardText}`);
 });
 
-test('Add details to card', async ({ kanbanBoard, cardDetails, browserName }) => {
+test('Add details to card', async ({ kanbanBoard, cardDetails }) => {
   // Open card
   await kanbanBoard.openCard(cardText);
 
@@ -48,6 +48,17 @@ test(`Drag a card`, async ({ kanbanBoard }) => {
   // Assert card is in the "Done" column
   await kanbanBoard.assertCardDoesNotExistInList(startingListName, cardText);
   await kanbanBoard.assertCardExistsInList(destinationListName, cardText);
+});
+
+test(`Add a label to a card`, async ({ kanbanBoard, cardDetails }) => {
+  // Open card
+  await kanbanBoard.openCard(cardText);
+
+  // Add a label to the card
+  await cardDetails.addLabelToCard("Priority");
+
+  // Assert label has the right background color
+  await cardDetails.assertLabelIsVisibleWithColor("Priority", "rgb(245, 211, 206)");
 });
 
 // Test cleanup
