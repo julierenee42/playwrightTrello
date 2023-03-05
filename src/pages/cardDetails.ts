@@ -63,7 +63,8 @@ export class CardDetails {
    * @param descriptionText Text to enter in description field
    */
   async fillDescriptionField(descriptionText: string) {
-    await this.descriptionInput.fill(descriptionText);
+    await this.descriptionInput.click();
+    await this.descriptionInput.type(descriptionText);
   }
 
   /**

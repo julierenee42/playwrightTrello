@@ -16,16 +16,14 @@ test.beforeEach(async ({ kanbanBoard, browserName }) => {
 
   // Assert card was created
   await kanbanBoard.assertCardExistsInList(startingListName, cardText);
+  console.log(`title of card ${cardText}`);
 });
 
 test('Add details to card', async ({ kanbanBoard, cardDetails, browserName }) => {
-  console.log(`title of card ${cardText}`);
-  // Skip on Firefox
-  test.skip(browserName === "firefox", "The fill method isn't working in Firefox, need to investigate");
-
-  // Add details to card
+  // Open card
   await kanbanBoard.openCard(cardText);
 
+  // Add a description to the card
   let textInDescriptionField = "Text in the description field. Added by Playwright.";
   await cardDetails.fillDescriptionField(textInDescriptionField);
   await cardDetails.clickSaveButton();
@@ -41,7 +39,6 @@ test('Add details to card', async ({ kanbanBoard, cardDetails, browserName }) =>
 });
 
 test(`Drag a card`, async ({ kanbanBoard }) => {
-  console.log(`title of card ${cardText}`);
   // Assert card is not in the "Done" column
   await kanbanBoard.assertCardDoesNotExistInList(destinationListName, cardText);
 
